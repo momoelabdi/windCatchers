@@ -1,0 +1,66 @@
+package org.env.windCatchers.controllers;
+
+import static org.hamcrest.Matchers.is;
+import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
+import java.util.ArrayList;
+import java.util.List;
+
+
+import org.env.windCatchers.model.User;
+import org.env.windCatchers.repository.UserRepository;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.http.MediaType;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
+import org.springframework.test.web.servlet.MockMvc;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+
+@WebMvcTest(UsersController.class)
+public class UsersControllerTest {
+
+    @Autowired
+    MockMvc mvc;
+
+    @Autowired
+    ObjectMapper mapper;
+
+    @MockitoBean
+    UserRepository repository;
+
+    private final List<User> users = new ArrayList<>();
+
+
+    @BeforeEach
+    void setUp() { users.add( new User("Jhon", "jhon@mail.com", "password", "Admin", "0100000000")); }
+
+
+
+
+    @Test
+    void shouldFindAllUsers() throws Exception {
+        when(repository.findAll()).thenReturn(users);
+        mvc.perform(get("/api/users"))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.size()", is(users.size())));
+    }
+
+
+
+    @Test
+    void shouldCreateNewUsers() throws Exception {
+        var user = new User("Jhony", "jhony@mail.com", "password1", "Admin", "0100000000");
+        mvc.perform(post("/api/users")
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(mapper.writeValueAsString(user))
+         ).andExpect(status().isCreated());
+    }
+}
