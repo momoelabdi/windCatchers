@@ -1,3 +1,6 @@
-/src/main/java/org/env/windCatchers linguist-language=Java
-/mvnw text eol=lf
-*.cmd text eol=crlf
+# * linguist-language=Java
+*.java linguist-detectable=true
+src/main/resources/** linguist-vendored
+src/test/** linguist-vendored
+# /mvnw text eol=lf
+# *.cmd text eol=crlf
