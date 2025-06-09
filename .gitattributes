@@ -1,4 +1,4 @@
-/src/main/java/** linguist-language=Java
+* linguist-language=Java
 /mvnw text eol=lf
 *.cmd text eol=crlf
 
