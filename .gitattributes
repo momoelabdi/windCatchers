@@ -1,6 +1,4 @@
-# * linguist-language=Java
+* linguist-language=Java
 *.java linguist-detectable=true
-src/main/resources/** linguist-vendored
-src/test/** linguist-vendored
-# /mvnw text eol=lf
-# *.cmd text eol=crlf
+/mvnw text eol=lf
+*.cmd text eol=crlf
