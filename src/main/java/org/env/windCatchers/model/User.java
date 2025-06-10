@@ -30,10 +30,32 @@ public class User {
         this.phone = phone;
     }
 
-    public String getName() { return this.name; }
-    public String getEmail()  { return this.email; }
-    public String getPasswordHash()  { return this.passwordHash; }
-    public String getRole()  { return this.role; }
-    public String getPhone()  { return this.phone; }
+
+    public Long getId() {
+        return id;
+    }
+
+    public String getName() {
+         return name; 
+    }
+
+    public String getEmail()  { 
+        return email; 
+    }
+
+    public String getPasswordHash()  { 
+        return passwordHash; 
+    }
+
+    public String getRole()  {
+        return role;
+    }
+
+    public String getPhone()  { 
+        return phone; 
+    }
+
+
+    // T0D0 Setters ...
 
 }
