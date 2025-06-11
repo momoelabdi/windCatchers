@@ -1,6 +1,0 @@
-CREATE TABLE IF NOT EXISTS Booking (
-    id SERIAL PRIMARY KEY,
-    user_id INT NOT NULL,
-    start_date TIMESTAMP NOT NULL,
-    end_date TIMESTAMP NOT NULL
-);

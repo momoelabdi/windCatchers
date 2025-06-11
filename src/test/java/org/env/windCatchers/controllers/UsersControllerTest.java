@@ -9,12 +9,13 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import java.util.ArrayList;
 import java.util.List;
-
+import java.util.Optional;
 
 import org.env.windCatchers.model.User;
 import org.env.windCatchers.repository.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentMatchers;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.http.MediaType;
@@ -53,7 +54,18 @@ public class UsersControllerTest {
             .andExpect(jsonPath("$.size()", is(users.size())));
     }
 
-
+    @Test
+    void shouldFindUserById() throws Exception {
+        User user  =  users.get(0);
+        when(repository.findById(ArgumentMatchers.anyLong())).thenReturn(Optional.of(user));
+        mvc.perform(get("/api/users/1"))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.name", is(user.getName())))
+            .andExpect(jsonPath("$.email", is(user.getEmail())))
+            .andExpect(jsonPath("$.role", is(user.getRole())))
+            .andExpect(jsonPath("$.phone", is(user.getPhone())));
+    }
+    
 
     @Test
     void shouldCreateNewUsers() throws Exception {
