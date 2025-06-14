@@ -1,8 +1,10 @@
 package org.env.windCatchers.controllers;
 import java.util.List;
 import org.env.windCatchers.forms.bookings.BookingResponseForm;
+import org.env.windCatchers.forms.bookings.BaseBookingForm;
 import org.env.windCatchers.forms.bookings.CreateBookingForm;
 import org.env.windCatchers.forms.bookings.UpdateBookingForm;
+import org.env.windCatchers.repositories.BookingRepository;
 import org.env.windCatchers.services.bookings.CreateBookingService;
 import org.env.windCatchers.services.bookings.ListAllBookingsService;
 import org.env.windCatchers.services.bookings.UpdateBookingService;
@@ -27,33 +29,41 @@ public class BookingsController {
     private final CreateBookingService createBookingService;
     private final UpdateBookingService updateBookingService;
 
-    public BookingsController(CreateBookingService createBookingService, ListAllBookingsService listBookingsService, UpdateBookingService updateBookingService) {
+
+    public BookingsController(
+        CreateBookingService createBookingService,
+        ListAllBookingsService listBookingsService,
+        UpdateBookingService updateBookingService) 
+    
+    {
         this.listBookingsService = listBookingsService;
         this.createBookingService = createBookingService;
         this.updateBookingService = updateBookingService;
+
     }
    
 
     @GetMapping
     public ResponseEntity<List<BookingResponseForm>> listAll() {
         List<BookingResponseForm> bookings = listBookingsService.execute();
+        
         return ResponseEntity.ok(bookings);
     }
 
 
    @PostMapping
-    public ResponseEntity<BookingResponseForm> create(@RequestBody @Validated CreateBookingForm form) {
-       BookingResponseForm created  = createBookingService.execute(form);
-       return ResponseEntity.status(HttpStatus.CREATED).body(created);
+    public ResponseEntity<BaseBookingForm> create(@RequestBody @Validated CreateBookingForm form) {
+       BaseBookingForm createdBooking  = createBookingService.execute(form);
+
+       return ResponseEntity.status(HttpStatus.CREATED).body(createdBooking);
     }
 
 
     @PutMapping("/{id}")
-    public ResponseEntity<BookingResponseForm> updateBooking(@PathVariable Long id,
-                                                            @RequestBody @Validated UpdateBookingForm form) {
-        form.setId(id);
-        BookingResponseForm updated = updateBookingService.execute(form);
-        return ResponseEntity.ok(updated);
+    public ResponseEntity<BookingResponseForm> update(@PathVariable Long id, @RequestBody @Validated UpdateBookingForm form) {
+        BookingResponseForm updatedBooking = updateBookingService.execute(id, form);
+
+        return ResponseEntity.ok(updatedBooking);
     }
 }
 
