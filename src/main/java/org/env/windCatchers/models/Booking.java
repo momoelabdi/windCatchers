@@ -1,4 +1,4 @@
-package org.env.windCatchers.model;
+package org.env.windCatchers.models;
 
 
 import jakarta.persistence.Id;
@@ -27,10 +27,13 @@ public class Booking {
 
     protected Booking() {}
 
-    public Booking(BookingStatus bookingStatus, PaymentStatus paymentStatus) {
+    public Booking(User user, Schedule schedule, BookingStatus bookingStatus, PaymentStatus paymentStatus) {
+        this.user = user;
+        this.schedule = schedule;
         this.bookingStatus = bookingStatus;
         this.paymentStatus = paymentStatus;
     }
+
 
     // Getters
     public BookingStatus getBookingStatus() { 
@@ -40,6 +43,10 @@ public class Booking {
         return paymentStatus;
     }
     
+    public Long getId() {
+        return id; 
+        
+    }
     public User getUser() {
         return user; 
         
@@ -51,6 +58,10 @@ public class Booking {
     // Setters
     public void setUser(User user) {
          this.user = user; 
+    }
+
+    public void  setId(Long id) {
+        this.id = id; 
     }
 
     public void setSchedule(Schedule schedule) { 

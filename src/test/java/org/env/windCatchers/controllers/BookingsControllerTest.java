@@ -1,24 +1,25 @@
 package org.env.windCatchers.controllers;
 
 import static org.hamcrest.Matchers.is;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-
-import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
-
-import org.env.windCatchers.enums.Enums.ScheduleStatus;
+import org.env.windCatchers.forms.bookings.BookingResponseForm;
+import org.env.windCatchers.forms.bookings.CreateBookingForm;
+import org.env.windCatchers.forms.bookings.UpdateBookingForm;
 import org.env.windCatchers.enums.Enums.BookingStatus;
 import org.env.windCatchers.enums.Enums.PaymentStatus;
-import org.env.windCatchers.model.Booking;
-import org.env.windCatchers.model.Schedule;
-import org.env.windCatchers.model.User;
-import org.env.windCatchers.repository.BookingRepository;
-import org.env.windCatchers.service.CreateBookingService;
+
+import org.env.windCatchers.services.bookings.BookingService;
+import org.hamcrest.core.IsNull;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,7 +28,9 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import com.fasterxml.jackson.databind.ObjectMapper;
-
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 
 @WebMvcTest(BookingsController.class)
 public class BookingsControllerTest {
@@ -38,46 +41,84 @@ public class BookingsControllerTest {
     @Autowired 
     ObjectMapper mapper;
 
-
     @MockitoBean
-    BookingRepository repository;
-
-    @MockitoBean
-    CreateBookingService service;
+    BookingService bookingService;
 
 
-    private final List<Booking> bookings = new ArrayList<>();
+    private BookingResponseForm mockBooking;
+    private CreateBookingForm createForm;
+    private UpdateBookingForm updateForm;
+
 
     @BeforeEach
     void setUp () {
-        User user = new User("John", "john@mail.com", "password123", "Admin", "0100000000");
-        LocalDateTime start = LocalDateTime.of(2025, 7, 15, 10, 0);
-        LocalDateTime end = LocalDateTime.of(2025, 7, 15, 12, 0);
-        Schedule schedule = new Schedule(start, end, "Wind Farm Zone A", ScheduleStatus.OPEN);
-        Booking booking = new Booking(BookingStatus.CONFIRMED, PaymentStatus.PAID);
-        booking.setUser(user);
-        booking.setSchedule(schedule);
-        bookings.add(booking);
+        mockBooking = new BookingResponseForm();
+        mockBooking.setId(1L);
+        mockBooking.setPaymentStatus(PaymentStatus.PAID);
+        mockBooking.setBookingStatus(BookingStatus.CONFIRMED);
+
+        createForm = new CreateBookingForm();
+        createForm.setUserId(1L);
+        createForm.setScheduleId(1L);
+        createForm.setBookingStatus(BookingStatus.CONFIRMED);
+        createForm.setPaymentStatus(PaymentStatus.PAID);
+
+        updateForm = new UpdateBookingForm();
+        updateForm.setBookingStatus(BookingStatus.CONFIRMED);
+        updateForm.setPaymentStatus(PaymentStatus.PAID);
      }
 
-
      @Test
-     void shouldFindAllBookings() throws Exception {
-        when(repository.findAll()).thenReturn(bookings);
+     void shouldReturnPaginatedBookings() throws Exception {
+        Pageable pageable = PageRequest.of(0, 20);
+        when(bookingService.getAll(any(Pageable.class))).thenReturn(new PageImpl<>(List.of(mockBooking)));
         mvc.perform(get("/api/bookings"))
             .andExpect(status().isOk())
-            .andExpect(jsonPath("$.size()", is(bookings.size())));
+            .andExpect(jsonPath("$.success", is(true)))
+            .andExpect(jsonPath("$.data.content[0].id", is(1)));
+     }
+
+     @Test
+     void shouldReturnBookingById() throws Exception {
+        when(bookingService.getById(1L)).thenReturn(mockBooking);
+        mvc.perform(get("/api/bookings/1"))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.success", is(true)))
+            .andExpect(jsonPath("$.data.id", is(1)));
      }
 
      @Test 
      void shouldCreateNewBooking() throws Exception {
-        Booking booking = bookings.get(0);
-        when(service.createBooking(booking)).thenReturn(booking);
+        when(bookingService.create(any(CreateBookingForm.class))).thenReturn(mockBooking);
         mvc.perform(post("/api/bookings")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(mapper.writeValueAsString(booking)))
-                .andExpect(status().isCreated());
+                .content(mapper.writeValueAsString(createForm)))
+            .andExpect(status().isCreated())
+            .andExpect(jsonPath("$.success", is(true)))
+            .andExpect(jsonPath("$.data.bookingStatus", is(createForm.getBookingStatus().toString())));
      }
+
+     @Test
+     void shouldUpdateBooking() throws Exception {
+        when(bookingService.update(eq(1L), any(UpdateBookingForm.class)))
+               .thenReturn(mockBooking);
+
+        mvc.perform(put("/api/bookings/1")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(mapper.writeValueAsString(updateForm)))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.success", is(true)))
+            .andExpect(jsonPath("$.data.bookingStatus", is(updateForm.getBookingStatus().toString())));
+     }
+
+     @Test 
+      public void shouldDeleteBooking() throws Exception {
+      doNothing().when(bookingService).delete(1L);
+         mvc.perform(delete("/api/bookings/1"))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.success", is(true)))
+            .andExpect(jsonPath("$.data", is(IsNull.nullValue())));
+      }
 }
 
 
