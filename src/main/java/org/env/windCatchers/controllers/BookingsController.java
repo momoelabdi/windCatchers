@@ -1,16 +1,14 @@
 package org.env.windCatchers.controllers;
-import java.util.List;
 import org.env.windCatchers.forms.bookings.BookingResponseForm;
 import org.env.windCatchers.forms.bookings.BaseBookingForm;
 import org.env.windCatchers.forms.bookings.CreateBookingForm;
 import org.env.windCatchers.forms.bookings.UpdateBookingForm;
-import org.env.windCatchers.repositories.BookingRepository;
-import org.env.windCatchers.services.bookings.CreateBookingService;
-import org.env.windCatchers.services.bookings.ListAllBookingsService;
-import org.env.windCatchers.services.bookings.UpdateBookingService;
+import org.env.windCatchers.services.bookings.BookingService;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -18,52 +16,54 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 
 @RestController
+@Validated
 @RequestMapping("/api/bookings")
 public class BookingsController {
 
-    private final ListAllBookingsService listBookingsService;
-    private final CreateBookingService createBookingService;
-    private final UpdateBookingService updateBookingService;
+    private final BookingService bookingService;
 
-
-    public BookingsController(
-        CreateBookingService createBookingService,
-        ListAllBookingsService listBookingsService,
-        UpdateBookingService updateBookingService) 
-    
-    {
-        this.listBookingsService = listBookingsService;
-        this.createBookingService = createBookingService;
-        this.updateBookingService = updateBookingService;
-
+    public BookingsController(BookingService bookingService) {
+        this.bookingService = bookingService;
     }
    
 
     @GetMapping
-    public ResponseEntity<List<BookingResponseForm>> listAll() {
-        List<BookingResponseForm> bookings = listBookingsService.execute();
-        
+    public ResponseEntity<Page<BookingResponseForm>> getAll(
+        @PageableDefault(size = 20, sort = "id") Pageable pageable) {
+    
+        Page<BookingResponseForm> bookings = bookingService.getAll(pageable);
         return ResponseEntity.ok(bookings);
     }
 
+    @GetMapping("/{id}")
+    public BookingResponseForm getById(@PathVariable Long id) {
+        return bookingService.getById(id);
+    }
 
-   @PostMapping
-    public ResponseEntity<BaseBookingForm> create(@RequestBody @Validated CreateBookingForm form) {
-       BaseBookingForm createdBooking  = createBookingService.execute(form);
+
+    @PostMapping
+    public ResponseEntity<BaseBookingForm> create(@RequestBody  CreateBookingForm form) {
+       BaseBookingForm createdBooking  = bookingService.create(form);
 
        return ResponseEntity.status(HttpStatus.CREATED).body(createdBooking);
     }
 
 
     @PutMapping("/{id}")
-    public ResponseEntity<BookingResponseForm> update(@PathVariable Long id, @RequestBody @Validated UpdateBookingForm form) {
-        BookingResponseForm updatedBooking = updateBookingService.execute(id, form);
+    public ResponseEntity<BookingResponseForm> update(@PathVariable Long id, @RequestBody  UpdateBookingForm form) {
+        BookingResponseForm updatedBooking = bookingService.update(id, form);
 
         return ResponseEntity.ok(updatedBooking);
+    }
+
+    @DeleteMapping("/{id}")
+    public void delete(@PathVariable Long id) {
+        bookingService.delete(id);
     }
 }
 
