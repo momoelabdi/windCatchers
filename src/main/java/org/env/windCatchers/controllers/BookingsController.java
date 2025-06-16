@@ -1,6 +1,5 @@
 package org.env.windCatchers.controllers;
 import org.env.windCatchers.forms.bookings.BookingResponseForm;
-import org.env.windCatchers.forms.bookings.BaseBookingForm;
 import org.env.windCatchers.forms.bookings.CreateBookingForm;
 import org.env.windCatchers.forms.bookings.UpdateBookingForm;
 import org.env.windCatchers.services.bookings.BookingService;
@@ -47,8 +46,8 @@ public class BookingsController {
 
 
     @PostMapping
-    public ResponseEntity<BaseBookingForm> create(@RequestBody  CreateBookingForm form) {
-       BaseBookingForm createdBooking  = bookingService.create(form);
+    public ResponseEntity<BookingResponseForm> create(@RequestBody  CreateBookingForm form) {
+       BookingResponseForm createdBooking  = bookingService.create(form);
 
        return ResponseEntity.status(HttpStatus.CREATED).body(createdBooking);
     }
