@@ -52,9 +52,9 @@ public class BookingService {
     }
 
     // update 
-    public BookingResponseForm update(Long bookingId, UpdateBookingForm form) {
-        Booking booking = bookingRepository.findById(bookingId)
-            .orElseThrow(() -> new ResourceNotFoundException("Booking not found with id " + bookingId));
+    public BookingResponseForm update(Long id, UpdateBookingForm form) {
+        Booking booking = bookingRepository.findById(id)
+            .orElseThrow(() -> new ResourceNotFoundException("Booking not found with id " + id));
 
         bookingMapper.updateEntity(form, booking);
 
