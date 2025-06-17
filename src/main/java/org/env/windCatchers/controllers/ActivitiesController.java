@@ -8,6 +8,7 @@ import org.env.windCatchers.services.activities.ActivitiesService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -43,10 +44,15 @@ public class ActivitiesController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<ActivitiesResponseForm> create(@PathVariable Long id,  @RequestBody UpdateActivitiesForm form) {
+    public ResponseEntity<ActivitiesResponseForm> update(@PathVariable Long id,  @RequestBody UpdateActivitiesForm form) {
        ActivitiesResponseForm updatedActivity = activitiesService.update(id, form);
 
        return ResponseEntity.ok(updatedActivity);
     }
 
+
+    @DeleteMapping("/{id}")
+    public void delete(@PathVariable Long id) {
+        activitiesService.delete(id);
+    }
 }

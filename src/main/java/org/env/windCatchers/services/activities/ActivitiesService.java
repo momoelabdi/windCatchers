@@ -25,6 +25,7 @@ public class ActivitiesService {
     }
 
 
+    // CREATE 
     public ActivitiesResponseForm create(CreateActivitiesForm form) {
         Activity activity = activitiesMapper.toEntity(form);
 
@@ -33,8 +34,7 @@ public class ActivitiesService {
         return activitiesMapper.toDto(savedActivity);
     }
 
-
-
+    // UPDATE 
     public ActivitiesResponseForm update(Long id, UpdateActivitiesForm updateFrom) {
         Activity activity = activitiesRepository.findById(id)
             .orElseThrow(() -> new ResourceNotFoundException("Activity not found with ID" + id ));
@@ -46,10 +46,19 @@ public class ActivitiesService {
         return activitiesMapper.toDto(updatedActivity);
     }
 
+    // GET ALL
     public List<ActivitiesResponseForm> getAll() {
         List<Activity> activities = activitiesRepository.findAll();
         return activities.stream()
             .map(activitiesMapper::toDto)
             .collect(Collectors.toList());
+    }
+
+    // DELETE
+    public void delete(Long id) {
+        Activity activity = activitiesRepository.findById(id)
+            .orElseThrow(() -> new ResourceNotFoundException("Activity not found with id " + id));
+
+        activitiesRepository.delete(activity);     
     }
 }
