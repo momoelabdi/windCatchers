@@ -3,10 +3,10 @@ package org.env.windCatchers.services.activities;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.env.windCatchers.dtos.activities.ActivitiesResponseDTO;
+import org.env.windCatchers.dtos.activities.CreateActivitiesDTO;
+import org.env.windCatchers.dtos.activities.UpdateActivitiesDTO;
 import org.env.windCatchers.exceptions.ResourceNotFoundException;
-import org.env.windCatchers.forms.activities.ActivitiesResponseForm;
-import org.env.windCatchers.forms.activities.CreateActivitiesForm;
-import org.env.windCatchers.forms.activities.UpdateActivitiesForm;
 import org.env.windCatchers.mappers.ActivitiesMapper;
 import org.env.windCatchers.models.Activity;
 import org.env.windCatchers.repositories.ActivitiesRepository;
@@ -26,8 +26,8 @@ public class ActivitiesService {
 
 
     // CREATE 
-    public ActivitiesResponseForm create(CreateActivitiesForm form) {
-        Activity activity = activitiesMapper.toEntity(form);
+    public ActivitiesResponseDTO create(CreateActivitiesDTO dto) {
+        Activity activity = activitiesMapper.toEntity(dto);
 
         Activity savedActivity = activitiesRepository.save(activity);
 
@@ -35,7 +35,7 @@ public class ActivitiesService {
     }
 
     // UPDATE 
-    public ActivitiesResponseForm update(Long id, UpdateActivitiesForm updateFrom) {
+    public ActivitiesResponseDTO update(Long id, UpdateActivitiesDTO updateFrom) {
         Activity activity = activitiesRepository.findById(id)
             .orElseThrow(() -> new ResourceNotFoundException("Activity not found with ID" + id ));
 
@@ -47,7 +47,7 @@ public class ActivitiesService {
     }
 
     // GET ALL
-    public List<ActivitiesResponseForm> getAll() {
+    public List<ActivitiesResponseDTO> getAll() {
         List<Activity> activities = activitiesRepository.findAll();
         return activities.stream()
             .map(activitiesMapper::toDto)
