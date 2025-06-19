@@ -7,8 +7,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 import jakarta.validation.Valid;
 
-import org.env.windCatchers.model.Schedule;
-import org.env.windCatchers.repository.ScheduleRepository;
+import org.env.windCatchers.models.Schedule;
+import org.env.windCatchers.repositories.ScheduleRepository;
 
 @RestController
 @RequestMapping("/api/schedules")

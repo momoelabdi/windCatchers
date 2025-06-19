@@ -1,9 +1,10 @@
 package org.env.windCatchers.controllers;
 
 import java.util.List;
-import org.env.windCatchers.forms.activities.ActivitiesResponseForm;
-import org.env.windCatchers.forms.activities.CreateActivitiesForm;
-import org.env.windCatchers.forms.activities.UpdateActivitiesForm;
+
+import org.env.windCatchers.dtos.activities.ActivitiesResponseDTO;
+import org.env.windCatchers.dtos.activities.CreateActivitiesDTO;
+import org.env.windCatchers.dtos.activities.UpdateActivitiesDTO;
 import org.env.windCatchers.services.activities.ActivitiesService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -30,22 +31,22 @@ public class ActivitiesController {
 
 
     @GetMapping
-    public ResponseEntity<List<ActivitiesResponseForm>> getAllActivities() {
-        List<ActivitiesResponseForm> activities = activitiesService.getAll();
+    public ResponseEntity<List<ActivitiesResponseDTO>> getAllActivities() {
+        List<ActivitiesResponseDTO> activities = activitiesService.getAll();
 
         return ResponseEntity.ok(activities);
     }
 
     @PostMapping
-    public ResponseEntity<ActivitiesResponseForm> create(@RequestBody CreateActivitiesForm form) {
-       ActivitiesResponseForm createdActivity = activitiesService.create(form);
+    public ResponseEntity<ActivitiesResponseDTO> create(@RequestBody CreateActivitiesDTO dto) {
+       ActivitiesResponseDTO createdActivity = activitiesService.create(dto);
 
        return ResponseEntity.status(HttpStatus.CREATED).body(createdActivity);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<ActivitiesResponseForm> update(@PathVariable Long id,  @RequestBody UpdateActivitiesForm form) {
-       ActivitiesResponseForm updatedActivity = activitiesService.update(id, form);
+    public ResponseEntity<ActivitiesResponseDTO> update(@PathVariable Long id,  @RequestBody UpdateActivitiesDTO dto) {
+       ActivitiesResponseDTO updatedActivity = activitiesService.update(id, dto);
 
        return ResponseEntity.ok(updatedActivity);
     }

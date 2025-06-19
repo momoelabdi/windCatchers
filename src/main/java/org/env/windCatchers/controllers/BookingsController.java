@@ -1,7 +1,7 @@
 package org.env.windCatchers.controllers;
-import org.env.windCatchers.forms.bookings.BookingResponseForm;
-import org.env.windCatchers.forms.bookings.CreateBookingForm;
-import org.env.windCatchers.forms.bookings.UpdateBookingForm;
+import org.env.windCatchers.dtos.bookings.BookingResponseDTO;
+import org.env.windCatchers.dtos.bookings.CreateBookingDTO;
+import org.env.windCatchers.dtos.bookings.UpdateBookingDTO;
 import org.env.windCatchers.services.bookings.BookingService;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
@@ -15,6 +15,9 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+
+import jakarta.validation.Valid;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
@@ -32,30 +35,30 @@ public class BookingsController {
    
 
     @GetMapping
-    public ResponseEntity<Page<BookingResponseForm>> getAll(
+    public ResponseEntity<Page<BookingResponseDTO>> getAll(
         @PageableDefault(size = 20, sort = "id") Pageable pageable) {
     
-        Page<BookingResponseForm> bookings = bookingService.getAll(pageable);
+        Page<BookingResponseDTO> bookings = bookingService.getAll(pageable);
         return ResponseEntity.ok(bookings);
     }
 
     @GetMapping("/{id}")
-    public BookingResponseForm getById(@PathVariable Long id) {
+    public BookingResponseDTO getById(@PathVariable Long id) {
         return bookingService.getById(id);
     }
 
 
     @PostMapping
-    public ResponseEntity<BookingResponseForm> create(@RequestBody  CreateBookingForm form) {
-       BookingResponseForm createdBooking  = bookingService.create(form);
+    public ResponseEntity<BookingResponseDTO> create(@Valid @RequestBody  CreateBookingDTO dto) {
+       BookingResponseDTO createdBooking  = bookingService.create(dto);
 
        return ResponseEntity.status(HttpStatus.CREATED).body(createdBooking);
     }
 
 
     @PutMapping("/{id}")
-    public ResponseEntity<BookingResponseForm> update(@PathVariable Long id, @RequestBody  UpdateBookingForm form) {
-        BookingResponseForm updatedBooking = bookingService.update(id, form);
+    public ResponseEntity<BookingResponseDTO> update(@PathVariable Long id, @RequestBody  UpdateBookingDTO dto) {
+        BookingResponseDTO updatedBooking = bookingService.update(id, dto);
 
         return ResponseEntity.ok(updatedBooking);
     }

@@ -1,8 +1,8 @@
 package org.env.windCatchers.controllers;
 import java.util.List;
 
-import org.env.windCatchers.model.User;
-import org.env.windCatchers.repository.UserRepository;
+import org.env.windCatchers.models.User;
+import org.env.windCatchers.repositories.UserRepository;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
