@@ -37,6 +37,15 @@ public class AccommodationUnitService {
             .collect(Collectors.toList());
     }
 
+    // GET /:id
+    public AccommodationUnitResponseDTO getById(Long id) {
+
+        AccommodationUnit accommodations = accommodationUnitRepository.findById(id)
+            .orElseThrow(() -> new ResourceNotFoundException("Accommodation Unit not found with ID: " + id));
+        
+        return  accommodationUnitMapper.toDto(accommodations);
+    }
+
     // create 
     public AccommodationUnitResponseDTO create(CreateAccommodationUnitDTO dto) {
         
@@ -49,11 +58,20 @@ public class AccommodationUnitService {
     // Updated 
     public AccommodationUnitResponseDTO update(Long id, UpdateAccommodationUnitDTO dto) {
         AccommodationUnit accommodationUnit = accommodationUnitRepository.findById(id)
-            .orElseThrow(() -> new ResourceNotFoundException("Accommodation Unit not found with ID:" + id));
+            .orElseThrow(() -> new ResourceNotFoundException("Accommodation Unit not found with ID: " + id));
 
         accommodationUnitMapper.updateEntity(dto, accommodationUnit);
         AccommodationUnit  updatedAccommodation = accommodationUnitRepository.save(accommodationUnit);
 
         return  accommodationUnitMapper.toDto(updatedAccommodation);
     }
+
+    // Delete
+    public void delete(Long id) {
+        AccommodationUnit activity = accommodationUnitRepository.findById(id)
+            .orElseThrow(() -> new ResourceNotFoundException("Activity not found with id " + id));
+
+        accommodationUnitRepository.delete(activity);     
+    }
+
 }

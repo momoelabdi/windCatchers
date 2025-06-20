@@ -7,6 +7,7 @@ import org.env.windCatchers.services.AccommodationUnits.AccommodationUnitService
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -34,19 +35,34 @@ public class AccommodationUnitsController {
         return ResponseEntity.ok(accommodations);
     }
 
+
+    @GetMapping("/{id}")
+    ResponseEntity<AccommodationUnitResponseDTO> getById(@PathVariable Long id) {
+        AccommodationUnitResponseDTO accommodations = accommodationUnitService.getById(id);
+
+        return ResponseEntity.ok(accommodations);
+    }
+
+
     @PostMapping
     public ResponseEntity<AccommodationUnitResponseDTO> create(@RequestBody CreateAccommodationUnitDTO dto) {
-        AccommodationUnitResponseDTO response = accommodationUnitService.create(dto);
+        AccommodationUnitResponseDTO accommodations = accommodationUnitService.create(dto);
         
-        return ResponseEntity.status(HttpStatus.CREATED).body(response);
+        return ResponseEntity.status(HttpStatus.CREATED).body(accommodations);
     }
 
     @PutMapping("/{id}")
     public ResponseEntity<AccommodationUnitResponseDTO> update(@PathVariable Long id, @RequestBody UpdateAccommodationUnitDTO dto) {
     
-        AccommodationUnitResponseDTO response = accommodationUnitService.update(id, dto);
+        AccommodationUnitResponseDTO accommodations = accommodationUnitService.update(id, dto);
         
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(accommodations);
+    }
+
+
+    @DeleteMapping("/{id}")
+    public void delete(@PathVariable Long id) {
+        accommodationUnitService.delete(id);
     }
 }
 
