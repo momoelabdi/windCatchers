@@ -16,12 +16,12 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import java.util.List;
 import java.math.BigDecimal;
 import org.junit.jupiter.api.Test;
+import org.env.windCatchers.dtos.activities.ActivitiesResponseDTO;
+import org.env.windCatchers.dtos.activities.CreateActivitiesDTO;
+import org.env.windCatchers.dtos.activities.UpdateActivitiesDTO;
 import org.env.windCatchers.enums.Enums.SkillLevel;
 import org.env.windCatchers.enums.Enums.SportType;
 import org.env.windCatchers.exceptions.ResourceNotFoundException;
-import org.env.windCatchers.forms.activities.CreateActivitiesForm;
-import org.env.windCatchers.forms.activities.UpdateActivitiesForm;
-import org.env.windCatchers.forms.activities.ActivitiesResponseForm;
 import org.env.windCatchers.services.activities.ActivitiesService;
 import org.junit.jupiter.api.BeforeEach;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -47,60 +47,60 @@ public class ActivitiesControllerTest {
     @MockitoBean
     ActivitiesService activitiesService;
 
-    private CreateActivitiesForm createForm;
-    private ActivitiesResponseForm responseForm;
-    private UpdateActivitiesForm updateForm;
+    private CreateActivitiesDTO createDTO;
+    private ActivitiesResponseDTO responseDTO;
+    private UpdateActivitiesDTO updateDTO;
      
     @BeforeEach
     void setUp() {
         Faker faker = new Faker();
-        createForm = new CreateActivitiesForm();
-        createForm.setTitle(faker.funnyName().name());
-        createForm.setDescription(faker.lorem().paragraph());
-        createForm.setSkillLevel(SkillLevel.INTERMEDIATE);
-        createForm.setSportType(SportType.SURFING);
-        createForm.setCapacity(faker.number().randomDigit());
-        createForm.setPrice(new BigDecimal(99.99));
+        createDTO = new CreateActivitiesDTO();
+        createDTO.setTitle(faker.funnyName().name());
+        createDTO.setDescription(faker.lorem().paragraph());
+        createDTO.setSkillLevel(SkillLevel.INTERMEDIATE);
+        createDTO.setSportType(SportType.SURFING);
+        createDTO.setCapacity(faker.number().randomDigit());
+        createDTO.setPrice(new BigDecimal(99.99));
 
-        updateForm = new UpdateActivitiesForm();
-        updateForm.setId(faker.number().randomNumber());
-        updateForm.setTitle(faker.funnyName().name());
-        updateForm.setDescription(faker.lorem().paragraph());
-        updateForm.setSkillLevel(SkillLevel.INTERMEDIATE);
-        updateForm.setSportType(SportType.SURFING);
-        updateForm.setCapacity(faker.number().randomDigit());
-        updateForm.setPrice(new BigDecimal(99.99));
+        updateDTO = new UpdateActivitiesDTO();
+        updateDTO.setId(faker.number().randomNumber());
+        updateDTO.setTitle(faker.funnyName().name());
+        updateDTO.setDescription(faker.lorem().paragraph());
+        updateDTO.setSkillLevel(SkillLevel.INTERMEDIATE);
+        updateDTO.setSportType(SportType.SURFING);
+        updateDTO.setCapacity(faker.number().randomDigit());
+        updateDTO.setPrice(new BigDecimal(99.99));
 
-        responseForm = new ActivitiesResponseForm();
-        responseForm.setId(1L);
-        responseForm.setTitle(createForm.getTitle());
-        responseForm.setDescription(createForm.getDescription());
-        responseForm.setSkillLevel(createForm.getSkillLevel());
-        responseForm.setSportType(createForm.getSportType());
-        responseForm.setCapacity(createForm.getCapacity());
-        responseForm.setPrice(createForm.getPrice());
+        responseDTO = new ActivitiesResponseDTO();
+        responseDTO.setId(1L);
+        responseDTO.setTitle(createDTO.getTitle());
+        responseDTO.setDescription(createDTO.getDescription());
+        responseDTO.setSkillLevel(createDTO.getSkillLevel());
+        responseDTO.setSportType(createDTO.getSportType());
+        responseDTO.setCapacity(createDTO.getCapacity());
+        responseDTO.setPrice(createDTO.getPrice());
     }
     
 
     @Test
     void shouldReturnListOfActivities() throws Exception {
-        when(activitiesService.getAll()).thenReturn(List.of(responseForm));
+        when(activitiesService.getAll()).thenReturn(List.of(responseDTO));
 
         mvc.perform(get("/api/activities"))
             .andExpect(status().isOk())
             .andExpect(content().contentType(MediaType.APPLICATION_JSON))
             .andExpect(jsonPath("$.success", is(true)))
-            .andExpect(jsonPath("$.data[0].id", is(responseForm.getId().intValue())))
-            .andExpect(jsonPath("$.data[0].title", is(responseForm.getTitle())));
+            .andExpect(jsonPath("$.data[0].id", is(responseDTO.getId().intValue())))
+            .andExpect(jsonPath("$.data[0].title", is(responseDTO.getTitle())));
     }
 
     @Test
     void shouldCreateNewActivity() throws Exception {
-        when(activitiesService.create(any(CreateActivitiesForm.class))).thenReturn(responseForm);
+        when(activitiesService.create(any(CreateActivitiesDTO.class))).thenReturn(responseDTO);
 
         mvc.perform(post("/api/activities")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(mapper.writeValueAsString(createForm)))
+                .content(mapper.writeValueAsString(createDTO)))
             .andExpect(status().isCreated())
             .andExpect(jsonPath("$.success", is(true)));
     }
@@ -108,27 +108,27 @@ public class ActivitiesControllerTest {
 
     @Test
     void shouldUpdateActivity() throws Exception {
-        when(activitiesService.update(eq(updateForm.getId()) ,any(UpdateActivitiesForm.class))).thenReturn(responseForm);
+        when(activitiesService.update(eq(updateDTO.getId()) ,any(UpdateActivitiesDTO.class))).thenReturn(responseDTO);
 
-        mvc.perform(put("/api/activities/{id}", updateForm.getId())
+        mvc.perform(put("/api/activities/{id}", updateDTO.getId())
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(mapper.writeValueAsString(updateForm)))
+                .content(mapper.writeValueAsString(updateDTO)))
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.success", is(true)))
-            .andExpect(jsonPath("$.data.id", is(responseForm.getId().intValue())))
-            .andExpect(jsonPath("$.data.title", is(responseForm.getTitle())));
+            .andExpect(jsonPath("$.data.id", is(responseDTO.getId().intValue())))
+            .andExpect(jsonPath("$.data.title", is(responseDTO.getTitle())));
     }
 
     
     @Test
     void updateActivityShouldReturnNotFound() throws Exception {
         Long notFoundId = 999L;
-        when(activitiesService.update(eq(notFoundId) ,any(UpdateActivitiesForm.class)))
+        when(activitiesService.update(eq(notFoundId) ,any(UpdateActivitiesDTO.class)))
         .thenThrow(new ResourceNotFoundException("Activity not found with ID " + notFoundId));
 
         mvc.perform(put("/api/activities/{id}", notFoundId)
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(mapper.writeValueAsString(updateForm)))
+                .content(mapper.writeValueAsString(updateDTO)))
             .andExpect(status().isNotFound())
             .andExpect(jsonPath("$.success", is(false)))
             .andExpect(jsonPath("$.error.message", is("Activity not found with ID " + notFoundId)));
