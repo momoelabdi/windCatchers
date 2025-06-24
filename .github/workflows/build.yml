@@ -1,0 +1,32 @@
+name: windCatchers API CI/CD 
+on:
+  push: 
+    branches:
+      - main
+    pull_request:
+      branches:
+        - main
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+
+      - name: Set up Java
+        uses: actions/setup-java@v2
+        with:
+          java-version: '24'
+
+
+      - name: Build with Maven 
+        run: mvn clean install
+
+
+
+
+
+
