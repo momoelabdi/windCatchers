@@ -33,5 +33,5 @@ build/
 .vscode/
 .env
 docker-compose.yml
-Dockerfile
+# Dockerfile
 # resources/

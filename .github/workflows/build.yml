@@ -1,34 +1,55 @@
-name: windCatchers API CI/CD 
+
+name: build and deploy windCatchers API
 on:
-  push: 
+  push:
     branches:
       - main
-    pull_request:
-      branches:
-        - main
-jobs:
-  build:
 
+jobs:
+  build-deploy:
+    name: build and deploy windCatchers-api
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v2
+      - name: checkout code
+        uses: actions/checkout@v3
 
-
-      - name: Set up Java
-        uses: actions/setup-java@v2
+      - name: setup jdk 24
+        uses: actions/setup-java@v3
         with:
           distribution: 'temurin'
           java-version: '24'
 
+      - name: unit tests
+        run: mvn -B test --file pom.xml
 
-      - name: Build with Maven 
-        run: mvn clean install
+      - name: build the app
+        run: |
+          mvn clean
+          mvn -B package --file pom.xml
 
-      - name: Package Api
-        run: mvn -f pom.xml clean package
+  
+      - name: build the docker image
+        uses: docker/build-push-action@v4
+        with:
+          context: .
+          dockerfile: Dockerfile
+          push: false
+          tags: ${{ secrets.DOCKER_HUB_USERNAME }}/wind-catchers:latest
 
+      - name: login to docker hub
+        uses: docker/login-action@v1
+        with:
+          username: ${{ secrets.DOCKER_HUB_USERNAME }}
+          password: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
+
+      - name: push the docker image to docker hub
+        uses: docker/build-push-action@v4
+        with:
+          context: .
+          dockerfile: Dockerfile
+          push: true
+          tags: ${{ secrets.DOCKER_HUB_USERNAME }}/wind-catchers:latest
 
 
 
