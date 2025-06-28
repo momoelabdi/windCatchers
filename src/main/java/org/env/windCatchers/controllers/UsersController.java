@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 
 import jakarta.validation.Valid;
 
+// Todo setup Authentication
 @RestController
 @RequestMapping("/api/users")
 public class UsersController {
