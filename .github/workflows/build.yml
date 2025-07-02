@@ -1,9 +1,13 @@
 
 name: build and deploy windCatchers API
 on:
-  push:
-    branches:
-      - main
+  workflow_dispatch:
+    inputs:
+      manual_branch:
+        description: Set branch
+        required: true
+        type: string
+        default: main
 
 jobs:
   build-deploy:
