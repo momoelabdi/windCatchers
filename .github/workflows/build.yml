@@ -1,56 +1,97 @@
-
 name: build and deploy windCatchers API
+
 on:
   workflow_dispatch:
     inputs:
       manual_branch:
-        description: Set branch
+        description: Set branch to build and deploy
         required: true
         type: string
         default: main
 
 jobs:
   build-deploy:
-    name: build and deploy windCatchers-api
     runs-on: ubuntu-latest
-
     steps:
-      - name: checkout code
+      - name: Checkout code
         uses: actions/checkout@v3
+        with:
+          ref: ${{ github.event.inputs.manual_branch }}
 
-      - name: setup jdk 24
+      - name: Setup JDK 24
         uses: actions/setup-java@v3
         with:
-          distribution: 'temurin'
+          distribution: temurin
           java-version: '24'
 
-      - name: unit tests
+      - name: Run unit tests
         run: mvn -B test --file pom.xml
 
-      - name: build the app
+      - name: Build the app
         run: |
           mvn clean
           mvn -B package --file pom.xml
 
-  
-      - name: build the docker image
-        uses: docker/build-push-action@v4
-        with:
-          context: .
-          file: Dockerfile
-          push: false
-          tags: ${{ secrets.DOCKER_HUB_USERNAME }}/wind-catchers:latest
+      - name: Set image tag and environment based on branch
+        id: set-tag
+        run: |
+          BRANCH_NAME="${{ github.event.inputs.manual_branch }}"
+          SHORT_SHA=$(echo "${GITHUB_SHA}" | cut -c1-7)
 
-      - name: login to docker hub
+          if [[ "$BRANCH_NAME" == release-* ]]; then
+            IMAGE_TAG=${BRANCH_NAME#release-}
+            ENVIRONMENT=prod
+          elif [[ "$BRANCH_NAME" == develop ]]; then
+            IMAGE_TAG="staging-$SHORT_SHA"
+            ENVIRONMENT=staging
+          elif [[ "$BRANCH_NAME" == feature/* ]]; then
+            IMAGE_TAG=$SHORT_SHA
+            ENVIRONMENT=dev
+          else
+            IMAGE_TAG=$SHORT_SHA
+            ENVIRONMENT=dev
+          fi
+
+          echo "image_tag=$IMAGE_TAG" >> $GITHUB_OUTPUT
+          echo "environment=$ENVIRONMENT" >> $GITHUB_OUTPUT
+
+      - name: Log in to Docker Hub
         uses: docker/login-action@v2
         with:
           username: ${{ secrets.DOCKER_HUB_USERNAME }}
           password: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
 
-      - name: push the docker image to docker hub
+      - name: Build and push Docker image
         uses: docker/build-push-action@v4
         with:
           context: .
           file: Dockerfile
           push: true
-          tags: ${{ secrets.DOCKER_HUB_USERNAME }}/wind-catchers:latest
+          tags: ${{ secrets.DOCKER_HUB_USERNAME }}/wind-catchers:${{ steps.set-tag.outputs.image_tag }}
+
+
+      - name: Checkout windCatchersInfra repo
+        uses: actions/checkout@v4
+        with:
+          repository: momoelabdi/windCatchersInfra
+          token: ${{ secrets.GH_PAT }}
+          path: infra
+          ref: main
+          
+      - name: Update Helm values file with new image tag
+        run: |
+          TAG="${{ steps.set-tag.outputs.image_tag }}"
+          ENV="${{ steps.set-tag.outputs.environment }}"
+          FILE="infra/envs/${ENV}/helm/values-${ENV}.yml"
+
+          echo "===>  Updating tag in $FILE to $TAG"
+          sed -i "s/^tag:.*/tag: $TAG/" "$FILE"
+
+      - name: Commit and push changes
+        run: |
+          cd infra
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add envs/${{ steps.set-tag.outputs.environment }}/helm/values-${{ steps.set-tag.outputs.environment }}.yml
+          git commit -m "Update image tag to ${{ steps.set-tag.outputs.image_tag }} for ${{ steps.set-tag.outputs.environment }}"
+          git push
