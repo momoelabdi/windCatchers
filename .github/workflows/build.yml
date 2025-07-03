@@ -85,7 +85,8 @@ jobs:
           FILE="envs/${ENV}/helm/values-${ENV}.yml"
 
           echo "===>  Updating tag in $FILE to $TAG"
-          sed -i "s/^tag:.*/tag: $TAG/" "$FILE"
+          #sed -i "s/^tag:.*/tag: $TAG/" "$FILE"
+          sed -i "s/^\([[:space:]]*\)tag:.*/\1tag: $TAG/" "$FILE"
 
       - name: Commit and push changes
         run: |
