@@ -68,6 +68,8 @@ jobs:
           file: Dockerfile
           push: true
           tags: ${{ secrets.DOCKER_HUB_USERNAME }}/wind-catchers:${{ steps.set-tag.outputs.image_tag }}
+          build-args: |
+            SPRING_PROFILE=${{ steps.set-tag.outputs.environment }}
 
 
       - name: Checkout windCatchersInfra repo
