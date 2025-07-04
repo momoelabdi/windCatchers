@@ -77,7 +77,6 @@ jobs:
         with:
           repository: momoelabdi/windCatchersInfra
           token: ${{ secrets.GH_PAT }}
-          #path: envs
           ref: main
           
       - name: Update Helm values file with new image tag
