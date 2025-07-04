@@ -84,7 +84,7 @@ jobs:
         run: |
           TAG="${{ steps.set-tag.outputs.image_tag }}"
           ENV="${{ steps.set-tag.outputs.environment }}"
-          FILE="envs/${ENV}/helm/values-${ENV}.yml"
+          FILE="envs/${ENV}/manifest/values-${ENV}.yml"
 
           echo "===>  Updating tag in $FILE to $TAG"
           #sed -i "s/^tag:.*/tag: $TAG/" "$FILE"
@@ -97,7 +97,7 @@ jobs:
           git config user.email "github-actions[bot]@users.noreply.github.com"
           
           ENV="${{ steps.set-tag.outputs.environment }}"
-          FILE="${ENV}/helm/values-${ENV}.yml"
+          FILE="${ENV}/manifest/values-${ENV}.yml"
 
           git add "$FILE"
           git commit -m "Update image tag to ${{ steps.set-tag.outputs.image_tag }} for $ENV" || echo "No changes to commit"
